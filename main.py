@@ -89,7 +89,7 @@ if page.ok:
 
 
 
-#https://www.youtube.com/watch?v=nZYJKXXMvkM > Liem connexion Ssh Git hub
+
 
 # Boucle extraction balises html 'a' category produit
     #categorie = soup.find_all('a')
