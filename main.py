@@ -6,9 +6,12 @@ from bs4 import BeautifulSoup
 from PIL import Image
 import csv
 
+#git add nom_du_fichier    = stage
+#git commit -m "Description du changement"     = Repository
+#git push -u origin main    = depot GitHub
 
 # Url Cible
-url = 'http://books.toscrape.com/catalogue/soumission_998/index.html'
+url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
 # Depot de la requete 'Url" dans un objet 'page'
 page = requests.get(url)
 
@@ -48,8 +51,8 @@ if page.ok:
 
     # Extraction du rating (Etoile)
     #                   Cle / Valeur                                    #3eme balise 'p' #2eme class
-    rating = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
-    print('Notation :',rating + ' Stars')
+    review_rating = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
+    print('Notation :', review_rating + ' Stars')
 
     #Extraction de l'Url de Image
     image_url = "http://books.toscrape.com/" + soup.findAll('img')[0]['src'][6:]
@@ -57,12 +60,27 @@ if page.ok:
     print('Url image', image_url)
 
 
+    en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
+
+    with open('book_to_scrape.csv', 'w') as fichier_csv:
+        writer = csv.writer(fichier_csv, delimiter=',')
+        writer.writerow(en_tete)
+        for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
+            ligne = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
+            writer.writerow(ligne)
+
+        #Ligne indice pour ecrire sur csv
+    with open('book_to_scrape1.csv' + '/' + title + '/' + price_including_tax + '/' + price_excluding_tax + '/' + number_available + '/' + product_description + '/' + category + '/' + review_rating + '/' + image_url + '.csv', 'w', encoding='UTF8') as f:
+        writer = csv.writer(f)
+        writer.writerow(header)
+
+
 
 
     # Ligne indice pour ecrire sur csv
-    with open('book_to_scrape.csv' + '/' + universal_product_code + '/' + title + '.csv', 'w', encoding='UTF8') as f:
+    '''with open('book_to_scrape.csv' + '/' + universal_product_code + '/' + title + '.csv', 'w', encoding='UTF8') as f:
         writer = csv.writer(f)
-        writer.writerow(header)
+        writer.writerow(header)'''
 
 
 
