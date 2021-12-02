@@ -60,14 +60,36 @@ if page.ok:
     print('Url image', image_url)
 
 
-    en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
+    #en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
 
     with open('book_to_scrape.csv', 'w') as fichier_csv:
-        writer = csv.writer(fichier_csv, delimiter=',')
-        writer.writerow(en_tete)
-        for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
-            ligne = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
-            writer.writerow(ligne)
+        #Creation des en-tete de colonne dans le csvwrtite
+        fichier_csv.write('title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n')
+
+
+
+        #for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
+        fichier_csv.write("title.text", price_including_tax.text,  price_excluding_tax.text, number_available.text, product_description.text, category.text, review_rating.text, image_url.text) #+ '.csv',
+
+        #fichier_csv.write(f)
+        #writer = csv.writer(f)
+       # writer.writerow(f)
+
+
+            #fichier_csv.write('/' + title, + price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url)
+
+    '''with open('book_to_scrape.csv', 'w') as fichier_csv:
+            writer = csv.writer(fichier_csv, delimiter=',')
+            # en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
+            # writer.writerow(en_tete)
+        for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(
+                    title, price_including_tax, price_excluding_tax, number_available, product_description, category,
+                    review_rating, image_url):
+                ligne = [title, price_including_tax, price_excluding_tax, number_available, product_description,
+                         category, review_rating, image_url]
+                writer.writerow(ligne)
+    '''
+
 
         #Ligne indice pour ecrire sur csv
     with open('book_to_scrape1.csv' + '/' + title + '/' + price_including_tax + '/' + price_excluding_tax + '/' + number_available + '/' + product_description + '/' + category + '/' + review_rating + '/' + image_url + '.csv', 'w', encoding='UTF8') as f:
