@@ -10,6 +10,14 @@ import csv
 #git commit -m "Description du changement"     = Repository
 #git push -u origin main    = depot GitHub
 
+
+
+#A faire boucle for de recuperation
+#for url in category_urls:
+#Et imprimer dans la console
+# Sans se preocuper de la category pour l'instant
+
+
 # Url Cible
 url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
 # Depot de la requete 'Url" dans un objet 'page'
@@ -59,93 +67,48 @@ if page.ok:
     image_reference = (title.text.replace('/', '_') + "_image.jpg")
     print('Url image', image_url)
 
+"""
+   Ecriture .csv qui ne foncctionne pas 
+    with open(f"./csv", "w", encoding="utf-8") as outf:
+        outf.write("url;upc;title;price_including_tax;price_excluding_tax;number_available;description;category;rating;image_url")
 
-    #en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
+        response = requests.get(url)
+        if response.ok:
+            soup = BeautifulSoup(response.content, "lxml")
 
-    with open('book_to_scrape.csv', 'w') as fichier_csv:
-        #Creation des en-tete de colonne dans le csvwrtite
-        fichier_csv.write('title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url\n')
+            #Extraction du Titre dans la balise html
+            title = soup.find('h1')
 
+            # Extraction de UPC
+            upc = soup.find_all("td")[0].get_text()
 
+            # Extraction de la variables prix avec taxe
+            price_including_tax = soup.find_all("td")[3].get_text()
 
-        #for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url):
-        fichier_csv.write("title.text", price_including_tax.text,  price_excluding_tax.text, number_available.text, product_description.text, category.text, review_rating.text, image_url.text) #+ '.csv',
+            # Extraction de la variables prix hors taxe
+            price_excluding_tax = soup.find_all("td")[2].get_text()
 
-        #fichier_csv.write(f)
-        #writer = csv.writer(f)
-       # writer.writerow(f)
+            # Extraction de la variables nombre disponible
+            number_available = soup.find_all("td")[5].get_text()
 
+            # Extraction de la variables description_produit
+            product_description = soup.find_all("p")[3].get_text()
 
-            #fichier_csv.write('/' + title, + price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url)
+            # Extraction de la variables category
+            category = soup.find_all('a')[3].get_text()
 
-    '''with open('book_to_scrape.csv', 'w') as fichier_csv:
-            writer = csv.writer(fichier_csv, delimiter=',')
-            # en_tete = [title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url]
-            # writer.writerow(en_tete)
-        for title, price_including_tax, price_excluding_tax, number_available, product_description, category, review_rating, image_url in zip(
-                    title, price_including_tax, price_excluding_tax, number_available, product_description, category,
-                    review_rating, image_url):
-                ligne = [title, price_including_tax, price_excluding_tax, number_available, product_description,
-                         category, review_rating, image_url]
-                writer.writerow(ligne)
-    '''
+            # Extraction du rating (Etoile)
+            #                   Cle / Valeur                                    #3eme balise 'p' #2eme class
+            review_rating = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
 
+            #Extraction de l'Url de Image
+            image_url = "http://books.toscrape.com/" + soup.findAll('img')[0]['src'][6:]
+            image_reference = (title.text.replace('/', '_') + "_image.jpg")
 
-        #Ligne indice pour ecrire sur csv
-    with open('book_to_scrape1.csv' + '/' + title + '/' + price_including_tax + '/' + price_excluding_tax + '/' + number_available + '/' + product_description + '/' + category + '/' + review_rating + '/' + image_url + '.csv', 'w', encoding='UTF8') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-
-
-
-
-    # Ligne indice pour ecrire sur csv
-    '''with open('book_to_scrape.csv' + '/' + universal_product_code + '/' + title + '.csv', 'w', encoding='UTF8') as f:
-        writer = csv.writer(f)
-        writer.writerow(header)'''
+            outf.write(url + upc + title + price_including_tax + price_excluding_tax + number_available + product_description + category + review_rating + image_url)
+            """
 
 
 
 
 
-    # Ligne pour recuperer les variables une a une >
-    # price_excluding_tax = soup.find_all("td")[2].get_text()
-    # print('Prix hors Taxe :', price_excluding_tax)
-
-
-   #links = []
-    #tds = soup.findAll('a')
-    #for td in tds:
-         #a = td.find('a')
-         #link = a['href']
-         #links.append('link')
-    #print(links)"""
-
-
-
-        #soup.find('a', class_="href")
-    #print("Lien : ", link)
-
-
-
-
-
-
-# Boucle extraction balises html 'a' category produit
-    #categorie = soup.find_all('a')
-    #for category in categorie:
-        #print("Categories :", category.text)
-
-
-#Boucle extraction balises html 'tr' information produits
-    #prodinfo = soup.find_all('tr')
-    #for information in prodinfo:
-        #print("Info Produit : ", information.text)'''
-
-#description2 = soup.find('p', class_="instock availability")
-    #print("Description2 : ", description2.text)
-
-# Boucle extraction balises html 'p' description produit
-    #description = soup.find_all('p')
-    #for resume in description:
-        #print("Description : ", resume.text)
