@@ -1,114 +1,99 @@
 # Openclassroom - Dev Appli Python - Projet 2
 
-# Import des packages Python
 import requests
 from bs4 import BeautifulSoup
+from math import ceil
+import time
+import os
 from PIL import Image
-import csv
-
-#git add nom_du_fichier    = stage
-#git commit -m "Description du changement"     = Repository
-#git push -u origin main    = depot GitHub
 
 
+start = time.time()
 
-#A faire boucle for de recuperation
-#for url in category_urls:
-#Et imprimer dans la console
-# Sans se preocuper de la category pour l'instant
+#Define all the categories that we will be able to scrap
+website = "https://books.toscrape.com/index.html"
+home_response = requests.get(website)
+home_soup = BeautifulSoup(home_response.text, "lxml")
+list=[]
+category_list = home_soup.find("ul", {"class":"nav nav-list"}).find_all("a")
+for category in category_list:
+    list.append(str(category.text).strip().lower().replace(" ","-"))
+
+#Create the csv folder if it doesn't exist
+try:
+    os.mkdir("csv")
+except  OSError as error:
+    print(error)
+
+#Create the images file if it doesn't exist
+try:
+    os.mkdir("images")
+except OSError as error:
+    print(error)
 
 
-# Url Cible
-url = 'http://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html'
-# Depot de la requete 'Url" dans un objet 'page'
-page = requests.get(url)
+for category in list[1:]:
+    print(f"Starting to scrap {category}.")
 
-#script recuperation informatipn 1 page
-if page.ok:
+    #Define how many pages the category has
+    page_count_response = requests.get("https://books.toscrape.com/catalogue/category/books/" + category + "_" + str(list.index(category)+1))
+    page_count_soup = BeautifulSoup(page_count_response.text, "lxml")
+    product_count = page_count_soup.find("form", {"class" : "form-horizontal"}).find("strong").text
+    page_count = ceil(int(product_count)/20)
 
-    #Création d'un objet "soup" a partir de la page html
-    soup = BeautifulSoup(page.text, 'html.parser')
+    category_urls = []
+    #correct the different url when the books only contain one page
+    i=1
+    if page_count > 1:
+        category_catalog_url = "https://books.toscrape.com/catalogue/category/books/" + category + "_" + str(list.index(category)+1) + "/page-" + str(i) + ".html"
+    else:
+        category_catalog_url = "https://books.toscrape.com/catalogue/category/books/" + category + "_" + str(list.index(category)+1) + "/index.html"
 
-    # Extraction de la variables prix hors taxe
-    universal_product_code = soup.find_all("td")[0].get_text()
-    print('Upc :', universal_product_code)
+    for i in range(1,page_count+1):
+        category_response = requests.get(category_catalog_url)
 
-    #Extraction du Titre dans la balise html
-    title = soup.find('h1')
-    print('Titres :', title.text)
+        if category_response.ok:
+            category_soup = BeautifulSoup(category_response.text, "lxml")
+            for h3 in category_soup.find("ol", {"class" : "row"}).find_all("h3"):
+                a = h3.find('a')
+                link = a['href']
+                category_urls.append("https://books.toscrape.com/catalogue/"+ str(link[9:]))
 
-    # Extraction de la variables prix avec taxe
-    price_including_tax = soup.find_all("td")[3].get_text()
-    print('Prix avec Taxe :', price_including_tax)
 
-    # Extraction de la variables prix hors taxe
-    price_excluding_tax = soup.find_all("td")[2].get_text()
-    print('Prix hors Taxe :', price_excluding_tax)
-
-    # Extraction de la variables nombre disponible
-    number_available = soup.find_all("td")[5].get_text()
-    print('Nombre disponible :', number_available)
-
-    # Extraction de la variables description_produit
-    product_description = soup.find_all("p")[3].get_text()
-    print('Description produit :', product_description)
-
-    # Extraction de la variables category
-    category = soup.find_all('a')[3].get_text()
-    print('Categorie produit :', category)
-
-    # Extraction du rating (Etoile)
-    #                   Cle / Valeur                                    #3eme balise 'p' #2eme class
-    review_rating = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
-    print('Notation :', review_rating + ' Stars')
-
-    #Extraction de l'Url de Image
-    image_url = "http://books.toscrape.com/" + soup.findAll('img')[0]['src'][6:]
-    image_reference = (title.text.replace('/', '_') + "_image.jpg")
-    print('Url image', image_url)
-
-"""
-   Ecriture .csv qui ne foncctionne pas 
-    with open(f"./csv", "w", encoding="utf-8") as outf:
+    with open(f"./csv/{category}.csv", "w", encoding="utf-8") as outf:
         outf.write("url;upc;title;price_including_tax;price_excluding_tax;number_available;description;category;rating;image_url")
+        for url in category_urls:
+            response = requests.get(url)
+            if response.ok:
+                soup = BeautifulSoup(response.content, "lxml")
 
-        response = requests.get(url)
-        if response.ok:
-            soup = BeautifulSoup(response.content, "lxml")
+                title = soup.find("h1").get_text()
 
-            #Extraction du Titre dans la balise html
-            title = soup.find('h1')
+                upc = soup.find_all("td")[0].get_text()
 
-            # Extraction de UPC
-            upc = soup.find_all("td")[0].get_text()
+                price_excluding_tax = soup.find_all("td")[2].get_text()
 
-            # Extraction de la variables prix avec taxe
-            price_including_tax = soup.find_all("td")[3].get_text()
+                price_including_tax = soup.find_all("td")[3].get_text()
 
-            # Extraction de la variables prix hors taxe
-            price_excluding_tax = soup.find_all("td")[2].get_text()
+                number_available = soup.find_all("td")[5].get_text()
 
-            # Extraction de la variables nombre disponible
-            number_available = soup.find_all("td")[5].get_text()
+                description = soup.find("article").find_all("p")[3].get_text().replace(";", "/").strip()
 
-            # Extraction de la variables description_produit
-            product_description = soup.find_all("p")[3].get_text()
+                category = soup.find("ul", {"class" : "breadcrumb"}).find_all("li")[2].text
 
-            # Extraction de la variables category
-            category = soup.find_all('a')[3].get_text()
+                rating = soup.find("div", {"class" : "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
 
-            # Extraction du rating (Etoile)
-            #                   Cle / Valeur                                    #3eme balise 'p' #2eme class
-            review_rating = soup.find("div", {"class": "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
+                image = soup.find("div", {"class" : "item active"}).img["src"]
+                image_url = "http://books.toscrape.com/" + image[6:]
+                img = Image.open(requests.get(image_url, stream=True).raw)
+                img.save(f'./images/{upc}.jpg')
 
-            #Extraction de l'Url de Image
-            image_url = "http://books.toscrape.com/" + soup.findAll('img')[0]['src'][6:]
-            image_reference = (title.text.replace('/', '_') + "_image.jpg")
+                outf.write("\n" + url + ";" + upc + ";" + title + ";" + price_including_tax + ";" + price_excluding_tax + ";" + number_available + ";" + description + ";" + category.replace('\n','') + ";" + rating + ";" + image_url)
+                print(f"{title} scrapped.")
 
-            outf.write(url + upc + title + price_including_tax + price_excluding_tax + number_available + product_description + category + review_rating + image_url)
-            """
+print("Done.")
 
+end = time.time()
+elapsed = end - start
 
-
-
-
+print(f"temps d'éxécution : {elapsed}")
