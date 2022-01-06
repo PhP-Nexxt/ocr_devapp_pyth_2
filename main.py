@@ -1,5 +1,7 @@
 # Openclassroom - Dev Appli Python - Projet 2
 
+
+#Import des paquets necesssaires au script
 import requests
 from bs4 import BeautifulSoup
 from math import ceil
@@ -7,10 +9,11 @@ import time
 import os
 from PIL import Image
 
-
+#Calcul du temps d'execution du Scrapping
 start = time.time()
 
-#Define all the categories that we will be able to scrap
+
+#Inventaire et Création des categories à scrapper 
 website = "https://books.toscrape.com/index.html"
 home_response = requests.get(website)
 home_soup = BeautifulSoup(home_response.text, "lxml")
@@ -19,30 +22,30 @@ category_list = home_soup.find("ul", {"class":"nav nav-list"}).find_all("a")
 for category in category_list:
     list.append(str(category.text).strip().lower().replace(" ","-"))
 
-#Create the csv folder if it doesn't exist
+#Création du dossier csv si celui-ci n'existe pas
 try:
     os.mkdir("csv")
 except  OSError as error:
     print(error)
 
-#Create the images file if it doesn't exist
+#Creation du dossier image si celui-ci n'existe pas
 try:
     os.mkdir("images")
 except OSError as error:
     print(error)
 
-
+#Affichage dynamique de la categorie de Scraping en cours
 for category in list[1:]:
     print(f"Starting to scrap {category}.")
 
-    #Define how many pages the category has
+    #Definir le nombre de page de la categorie 
     page_count_response = requests.get("https://books.toscrape.com/catalogue/category/books/" + category + "_" + str(list.index(category)+1))
     page_count_soup = BeautifulSoup(page_count_response.text, "lxml")
     product_count = page_count_soup.find("form", {"class" : "form-horizontal"}).find("strong").text
     page_count = ceil(int(product_count)/20)
 
+    #Corriger l'url lorsque le la categorie contient une seule page
     category_urls = []
-    #correct the different url when the books only contain one page
     i=1
     if page_count > 1:
         category_catalog_url = "https://books.toscrape.com/catalogue/category/books/" + category + "_" + str(list.index(category)+1) + "/page-" + str(i) + ".html"
@@ -59,9 +62,13 @@ for category in list[1:]:
                 link = a['href']
                 category_urls.append("https://books.toscrape.com/catalogue/"+ str(link[9:]))
 
-
+    #Ecriture des requetes dans le fichier csv  
     with open(f"./csv/{category}.csv", "w", encoding="utf-8") as outf:
+        
+        #Ecriture des en-tete de colonnes 
         outf.write("url;upc;title;price_including_tax;price_excluding_tax;number_available;description;category;rating;image_url")
+        
+        #Extraction des éléments demandés
         for url in category_urls:
             response = requests.get(url)
             if response.ok:
@@ -82,18 +89,23 @@ for category in list[1:]:
                 category = soup.find("ul", {"class" : "breadcrumb"}).find_all("li")[2].text
 
                 rating = soup.find("div", {"class" : "col-sm-6 product_main"}).find_all("p")[2]["class"][1]
-
+                
+                #Extraction de l'image liée
                 image = soup.find("div", {"class" : "item active"}).img["src"]
                 image_url = "http://books.toscrape.com/" + image[6:]
                 img = Image.open(requests.get(image_url, stream=True).raw)
+                #Ecriture de l'image 
                 img.save(f'./images/{upc}.jpg')
 
+                #Ecriture des éléments demandés
                 outf.write("\n" + url + ";" + upc + ";" + title + ";" + price_including_tax + ";" + price_excluding_tax + ";" + number_available + ";" + description + ";" + category.replace('\n','') + ";" + rating + ";" + image_url)
+                #Affichage dynamique du titre scrappé
                 print(f"{title} scrapped.")
 
+#Affichage dynamique de fin de script
 print("Done.")
 
+#Affichage dynamique du temps d'execution (cf. Ligne 12)
 end = time.time()
 elapsed = end - start
-
 print(f"temps d'éxécution : {elapsed}")
