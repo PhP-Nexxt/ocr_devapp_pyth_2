@@ -100,7 +100,7 @@ for category in list[1:]:
                 #Ecriture des éléments demandés
                 outf.write("\n" + url + ";" + upc + ";" + title + ";" + price_including_tax + ";" + price_excluding_tax + ";" + number_available + ";" + description + ";" + category.replace('\n','') + ";" + rating + ";" + image_url)
                 #Affichage dynamique du titre scrappé
-                print(f"{title} scrapped.")
+                print(f"{title}  : scrapped.")
 
 #Affichage dynamique de fin de script
 print("Done.")
