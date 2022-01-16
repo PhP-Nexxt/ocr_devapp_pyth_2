@@ -18,7 +18,7 @@ urllib3==1.26.6
 2- Environnement Virtuel (installation) : 
 Pour créer l'environnement virtuel, créez (par exemple) un dossier "ocr_devapp_pyth_2" sur votre disque
 Puis dans l'edit de commande ou le terminal(mac ou linux) placez-vous dans ce dossier, puis utilisez la commande : 
-[python(python3 sur mac) -m venv env(ou le nom que vous souhaitez donner à votre environnement virtuel)]
+'''python(python3 sur mac) -m venv env(ou le nom que vous souhaitez donner à votre environnement virtuel)'''
 Activer ensuite cet environnement virtuel : venv\\env(ou le nom de votre environnement virtuel)\\activate.bat ou sur mac : source env(ou le nom de votre environnement virtuel)/bin/activate
  Note : au terme de l'execution du programme, utiliser la commande deactivate pour sortir de l'environnement virtuel
   
