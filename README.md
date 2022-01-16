@@ -2,7 +2,7 @@
 
 Le script main.py du dossier "ocr_devapp_pyth_2" permet de "Scrapper" les informations "produits" du site de démonstration Book to Scrape : https://books.toscrape.com/index.html
 
-1- Requierements : 
+1- Pre-recquis : 
 Pour commencer à travailler sur ce projet, créez et activez un environnement virtuel, puis installez ces paquets :
 beautifulsoup4==4.9.3
 bs4==0.0.1
